@@ -17,6 +17,7 @@ namespace webapidemo.Data
 
         public DbSet<Item> Item { get; set; }
         public DbSet<Customer> Customer { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
 

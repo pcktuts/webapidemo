@@ -13,6 +13,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using webapidemo.Data;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace webapidemo
 {
@@ -28,7 +31,7 @@ namespace webapidemo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-
+              
             services.AddControllers();
             services.AddDbContext<ApiContext>(options =>
              options.UseSqlServer(Configuration.GetConnectionString("ApiContext")));
@@ -36,6 +39,20 @@ namespace webapidemo
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "webapidemo", Version = "v1" });
             });
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+              .AddJwtBearer(options =>
+              {
+                  options.TokenValidationParameters = new TokenValidationParameters
+                  {
+                      ValidateIssuer = true,
+                      ValidateAudience = true,
+                      ValidateLifetime = true,
+                      ValidateIssuerSigningKey = true,
+                      ValidIssuer = Configuration["Jwt:Issuer"],
+                      ValidAudience = Configuration["Jwt:Issuer"],
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["Jwt:Key"]))
+                  };
+              });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,7 +66,9 @@ namespace webapidemo
             }
 
             app.UseHttpsRedirection();
-
+            app.UseCors(
+                   options => options.WithOrigins("file:///C:/Users/krishnadas/Desktop/html/index.html").AllowAnyMethod()
+               );
             app.UseRouting();
 
             app.UseAuthorization();
