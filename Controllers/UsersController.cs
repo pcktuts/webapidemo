@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,7 @@ namespace webapidemo.Controllers
 {
     [Route("api/[controller]/[action]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly ApiContext _context;
@@ -31,6 +33,7 @@ namespace webapidemo.Controllers
 
         // GET: api/Users
         [HttpGet]
+        
         public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
             return await _context.Users.ToListAsync();
@@ -113,6 +116,7 @@ namespace webapidemo.Controllers
         
         // POST: api/Login
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(User postUser)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Username == postUser.Username);
